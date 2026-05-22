@@ -1,0 +1,8 @@
+(set-logic QF_BV)
+(declare-fun x () (_ BitVec 8))
+(declare-fun y () (_ BitVec 8))
+(assert (= (bvadd x y) #x42))
+(assert (bvugt x #x10))
+(assert (bvugt y #x10))
+(check-sat)
+(get-model)
