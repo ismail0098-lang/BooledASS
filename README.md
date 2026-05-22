@@ -9,25 +9,62 @@ The solver optimizes standard CPU-level QF_BV solving with the following bit-bla
 1. **Symmetrical Joint Full-Adder Internalization (`bv_internalize.cpp`)**: Jointly maps sum (`OP_XOR3`) and carry-out (`OP_CARRY`) to a minimal 10-clause cover instead of internalizing them independently (saving 4 clauses, or **28.5%** per full-adder).
 2. **Shared Carry-Out Gate via ITE (`bit_blaster_rewriter.cpp`)**: Rewrites standard carry-out to use $Cout = \text{ITE}(\text{XOR}(A, B), C, A)$, sharing the already computed and cached $XOR(A, B)$ term, reducing carry-out encoding from 13 clauses to 4 clauses.
 
-### Benchmark Results (CPU-Only Mode)
+### SMT-COMP QF_BV Benchmark Results (CPU-Only Mode)
 
-Evaluating these CPU-only optimizations against baseline Z3 yields substantial reductions in search-space variables, clauses, and overall solve times:
+Evaluating these CPU-only internalization and bit-blasting optimizations against Baseline Z3 across the 10 SMT-COMP QF_BV benchmarks yields the following comparative results:
 
-#### A. 64-bit Factoring Benchmark (`bench_factor64.smt2`)
-| Metric | Baseline Z3 | Optimized BooledASS | Reduction / Speedup |
-| :--- | :--- | :--- | :--- |
-| **SAT Variables (`sat-mk-var`)** | 8,116 | 6,213 | **-23.4%** |
-| **Total SAT Clauses** | 27,836 | 25,053 | **-10.0%** |
-| **SAT Conflicts (`sat-conflicts`)** | 15,529 | 11,388 | **-26.7%** |
-| **SAT Decisions (`sat-decisions`)** | 27,592 | 24,204 | **-12.3%** |
-| **Solving Time** | 0.96s | 0.59s | **+38.5% Speedup** |
-
-#### B. 128-bit Wrap-Around Factoring Benchmark (`bench_wrap_128.smt2`)
-| Metric | Baseline Z3 | Optimized BooledASS | Reduction / Speedup |
-| :--- | :--- | :--- | :--- |
-| **SAT Conflicts (`sat-conflicts`)** | 2,161 | 1,302 | **-39.7%** |
-| **SAT Decisions (`sat-decisions`)** | 15,058 | 14,884 | **-1.2%** |
-| **Solving Time** | ~0.90s | 0.38s | **+57.7% Speedup** |
+| Benchmark | Logic / Status | Metric | Baseline Z3 | BooledASS | Change / Speedup |
+| :--- | :--- | :--- | :---: | :---: | :---: |
+| **test_qfbv.smt2** | SAT | SAT Variables | 38 | 38 | **0.0%** |
+| | | Total SAT Clauses | 105 | 105 | **0.0%** |
+| | | SAT Conflicts | 5 | 5 | **0.0%** |
+| | | Solving Time | 0.01s | 0.01s | **N/A (<0.02s)** |
+|--- |--- |--- |--- |--- |--- |
+| **test_qfbv_hard.smt2** | UNSAT | SAT Variables | 1 | 1 | **0.0%** |
+| | | Total SAT Clauses | 0 | 0 | **0.0%** |
+| | | SAT Conflicts | 0 | 0 | **0.0%** |
+| | | Solving Time | 0.00s | 0.00s | **N/A (<0.02s)** |
+|--- |--- |--- |--- |--- |--- |
+| **bench_qfbv_mult16.smt2** | SAT | SAT Variables | 2,305 | 1,738 | **-24.6%** |
+| | | Total SAT Clauses | 7,865 | 7,067 | **-10.1%** |
+| | | SAT Conflicts | 26 | 61 | **+134.6%** |
+| | | Solving Time | 0.01s | 0.01s | **N/A (<0.02s)** |
+|--- |--- |--- |--- |--- |--- |
+| **bench_qfbv_mult32.smt2** | SAT | SAT Variables | 9,838 | 7,180 | **-27.0%** |
+| | | Total SAT Clauses | 59,103 | 29,805 | **-49.6%** |
+| | | SAT Conflicts | 168 | 115 | **-31.5%** |
+| | | Solving Time | 0.07s | 0.02s | **N/A (<0.02s)** |
+|--- |--- |--- |--- |--- |--- |
+| **bench_qfbv_mult64.smt2** | SAT | SAT Variables | 40,646 | 29,204 | **-28.2%** |
+| | | Total SAT Clauses | 247,468 | 218,407 | **-11.7%** |
+| | | SAT Conflicts | 877 | 2,479 | **+182.7%** |
+| | | Solving Time | 0.31s | 0.35s | **-12.9%** |
+|--- |--- |--- |--- |--- |--- |
+| **bench_comm_96.smt2** | UNSAT | SAT Variables | 1 | 1 | **0.0%** |
+| | | Total SAT Clauses | 0 | 0 | **0.0%** |
+| | | SAT Conflicts | 0 | 0 | **0.0%** |
+| | | Solving Time | 0.00s | 0.00s | **N/A (<0.02s)** |
+|--- |--- |--- |--- |--- |--- |
+| **bench_dist_96.smt2** | UNSAT | SAT Variables | 1 | 1 | **0.0%** |
+| | | Total SAT Clauses | 0 | 0 | **0.0%** |
+| | | SAT Conflicts | 0 | 0 | **0.0%** |
+| | | Solving Time | 0.00s | 0.00s | **N/A (<0.02s)** |
+|--- |--- |--- |--- |--- |--- |
+| **test_crypto.smt2** | SAT | SAT Variables | 7,720 | 5,305 | **-31.3%** |
+| | | Total SAT Clauses | 168,980 | 64,703 | **-61.7%** |
+| | | SAT Conflicts | 114,046 | 20,687 | **-81.9%** |
+| | | Solving Time | 8.29s | 1.54s | **+81.4% Speedup** |
+|--- |--- |--- |--- |--- |--- |
+| **bench_factor64.smt2** | UNSAT | SAT Variables | 8,116 | 6,213 | **-23.4%** |
+| | | Total SAT Clauses | 62,631 | 52,569 | **-16.1%** |
+| | | SAT Conflicts | 15,529 | 11,388 | **-26.7%** |
+| | | Solving Time | 0.96s | 0.56s | **+41.7% Speedup** |
+|--- |--- |--- |--- |--- |--- |
+| **bench_wrap_128.smt2** | SAT | SAT Variables | 56,269 | 40,519 | **-28.0%** |
+| | | Total SAT Clauses | 340,782 | 296,016 | **-13.1%** |
+| | | SAT Conflicts | 2,161 | 1,302 | **-39.8%** |
+| | | Solving Time | 0.47s | 0.34s | **+27.7% Speedup** |
+|--- |--- |--- |--- |--- |--- |
 
 ## GPU-Accelerated SAT Solving
 
