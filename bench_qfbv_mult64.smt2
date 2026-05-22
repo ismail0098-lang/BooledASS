@@ -1,0 +1,15 @@
+(set-logic QF_BV)
+(declare-fun a () (_ BitVec 64))
+(declare-fun b () (_ BitVec 64))
+(declare-fun c () (_ BitVec 64))
+(declare-fun d () (_ BitVec 64))
+
+(assert (= a (bvmul b c)))
+(assert (= d (bvadd (bvmul a b) (bvmul c d))))
+(assert (bvugt b (_ bv4294967295 64)))
+(assert (bvugt c (_ bv4294967295 64)))
+(assert (bvult a (_ bv18000000000000000000 64)))
+(assert (not (= d (_ bv0 64))))
+(assert (= (bvxor a d) (bvand b c)))
+
+(check-sat)
