@@ -7,6 +7,12 @@ call "C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Auxiliar
 echo Prepending CMake path...
 set "PATH=C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin;%PATH%"
 
+set "CMAKE_ARGS="
+if "%1"=="cpu" (
+    echo CPU-only build requested. Disabling CUDA support...
+    set "CMAKE_ARGS=-DZ3_GPU=OFF"
+)
+
 echo Checking for build directory...
 if not exist "%~dp0build" (
     echo Creating build directory...
@@ -19,7 +25,7 @@ echo Changing to build directory...
 cd /d "%~dp0build"
 
 echo Running CMake configuration...
-cmake ..
+cmake %CMAKE_ARGS% ..
 if errorlevel 1 (
     echo CMake configuration failed!
     exit /b 1

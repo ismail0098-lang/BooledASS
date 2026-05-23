@@ -19,8 +19,20 @@ $env:Z3_GPU_THRESHOLD=1000000
 
 ## How to build
 
-Run the build script to compile the solver:
+To compile the solver with full GPU/CUDA acceleration support (default, automatically detects NVCC):
+```powershell
 .\build_z3.bat
+```
+
+To compile the solver in **CPU-only mode** (for CPU-only tracks like SMT-COMP, stripping all CUDA library dependencies to prevent binary load crashes on cluster nodes without NVIDIA drivers):
+```powershell
+.\build_z3.bat cpu
+```
+
+Alternatively, you can run CMake directly with:
+```bash
+cmake -DZ3_GPU=OFF ..
+```
 
 ## Benchmark Results
 
