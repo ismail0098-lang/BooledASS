@@ -154,16 +154,7 @@ endif()
 # shared library the dependent libraries are specified on the link command line
 # so that if those are also shared libraries they are referenced by `libz3.so`.
 target_link_libraries(libz3 PRIVATE ${Z3_DEPENDENT_LIBS})
-# CUDA: link kernel object + runtime
-if (WITH_CUDA)
-    set(CUDA_ROOT "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v13.2")
-    target_link_libraries(libz3 PRIVATE
-        "${CMAKE_CURRENT_BINARY_DIR}/sat/booledass_kernels.obj"
-        "${CUDA_ROOT}/lib/x64/cudart.lib"
-        "${CUDA_ROOT}/lib/x64/cuda.lib"
-    )
-    add_dependencies(libz3 booledass_cuda_kernels)
-endif()
+
 
 # On macOS, add headerpad for install_name_tool compatibility
 if(CMAKE_SYSTEM_NAME STREQUAL "Darwin" AND Z3_BUILD_LIBZ3_SHARED)
