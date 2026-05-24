@@ -1,0 +1,50 @@
+name: SMT-COMP Release Build
+
+on:
+  push:
+    branches:
+      - main
+      - master
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake ninja-build g++ python3
+
+      - name: Configure and Build
+        run: |
+          mkdir build
+          cd build
+          cmake -G Ninja -DCMAKE_BUILD_TYPE=Release -DZ3_ENABLE_EXAMPLE_TARGETS=OFF ..
+          ninja z3
+
+      - name: Package Release
+        run: |
+          mkdir -p booledass-release
+          cp build/z3 booledass-release/z3
+          tar -czf BooledASS-linux.tar.gz -C booledass-release z3
+
+      - name: Publish GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Delete tag and release if they exist to allow clean overwrites/updates
+          gh release delete v1.0.0 --yes || true
+          git tag -d v1.0.0 || true
+          git push origin :refs/tags/v1.0.0 || true
+          
+          # Create new release and upload binary
+          gh release create v1.0.0 BooledASS-linux.tar.gz --title "BooledASS v1.0.0" --notes "Official compiled binary of BooledASS for SMT-COMP 2026."
