@@ -14,8 +14,20 @@
     "seed": "2026",
     "participations": [
         {
-            "tracks": ["SingleQuery", "Incremental"],
-            "divisions": ["QF_Bitvec"]
+            "tracks": ["SingleQuery"],
+            "logics": ".*"
+        },
+        {
+            "tracks": ["Incremental"],
+            "logics": ".*"
+        },
+        {
+            "tracks": ["UnsatCore"],
+            "logics": ".*"
+        },
+        {
+            "tracks": ["ModelValidation"],
+            "logics": ".*"
         }
     ]
 }
