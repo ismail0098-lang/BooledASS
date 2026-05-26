@@ -22,14 +22,13 @@ jobs:
       - name: Install build dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y cmake ninja-build g++ python3
+          sudo apt-get install -y g++ python3 make
 
       - name: Configure and Build
         run: |
-          mkdir build
+          python3 scripts/mk_make.py --staticbin
           cd build
-          cmake -G Ninja -DCMAKE_BUILD_TYPE=Release -DZ3_ENABLE_EXAMPLE_TARGETS=OFF ..
-          ninja z3
+          make -j$(nproc)
 
       - name: Package Release
         run: |
