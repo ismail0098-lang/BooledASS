@@ -24,7 +24,16 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y g++ python3 make
 
-      - name: Configure and Build
+      - name: Clone and Build Upstream Z3
+        run: |
+          git clone --depth 1 https://github.com/Z3Prover/z3.git z3-upstream
+          cd z3-upstream
+          python3 scripts/mk_make.py --staticbin
+          cd build
+          make -j$(nproc)
+          cd ../..
+
+      - name: Configure and Build BooledASS
         run: |
           python3 scripts/mk_make.py --staticbin
           cd build
@@ -32,9 +41,9 @@ jobs:
 
       - name: Package Release
         run: |
-          mkdir -p booledass-release
-          cp build/z3 booledass-release/z3
-          tar -czf BooledASS-linux.tar.gz -C booledass-release z3
+          cp build/z3 ./z3-BooledASS
+          cp z3-upstream/build/z3 ./z3
+          tar -czf z3-BooledASS.tar.gz z3-BooledASS z3 src scripts CMakeLists.txt LICENSE.txt README.md configure RELEASE_NOTES.md
 
       - name: Publish GitHub Release
         env:
@@ -46,4 +55,4 @@ jobs:
           git push origin :refs/tags/v1.0.0 || true
           
           # Create new release and upload binary
-          gh release create v1.0.0 BooledASS-linux.tar.gz --title "BooledASS v1.0.0" --notes "Official compiled binary of BooledASS for SMT-COMP 2026."
+          gh release create v1.0.0 z3-BooledASS.tar.gz --title "BooledASS v1.0.0" --notes "Official compiled binary of BooledASS for SMT-COMP 2026."
