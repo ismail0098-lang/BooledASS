@@ -41,8 +41,8 @@ We evaluated BooledASS side-by-side with baseline Z3 on representative SMT-COMP 
 
 ### 4. SMT-COMP 2026 Participation
 BooledASS is registered as a **derived solver** in the following configurations:
-* **Tracks**: `SingleQuery`, `Incremental`
-* **Divisions**: `QF_Bitvec` (specialized for `QF_BV` and related bit-vector logics).
+* **Tracks**: `SingleQuery`, `Incremental`, `UnsatCore`, `ModelValidation`
+* **Logics**: All supported logics (`.*`), with optimizations specialized for bit-vector divisions (such as `QF_BV`).
 
 ---
 
