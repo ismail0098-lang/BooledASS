@@ -1,0 +1,14 @@
+#!/bin/bash
+# Extract the last argument (the benchmark file path)
+FILE="${@: -1}"
+# Check if the last argument is an actual file that exists
+if [ -f "$FILE" ]; then
+    # Grab all arguments except the file
+    ARGS=("${@:1:$#-1}")
+    
+    # Cat the file, then pipe the remaining stdin (-) into the real Z3 binary with the '-in' flag
+    cat "$FILE" - | "$(dirname "$0")/z3-BooledASS-bin" "${ARGS[@]}" -in
+else
+    # Fallback for version checks or non-file executions
+    "$(dirname "$0")/z3-BooledASS-bin" "$@"
+fi
